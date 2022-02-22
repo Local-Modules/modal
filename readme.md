@@ -1,7 +1,11 @@
----
-title: modal
----
 
+# @locmod/modal
+
+### Installation
+
+```bash
+npm install --save @locmod/modal
+```
 
 ### Imports
 

@@ -1,0 +1,4 @@
+.jest.config.jest
+.rollup.config.js
+.vscode
+node_modules

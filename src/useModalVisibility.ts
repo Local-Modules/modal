@@ -25,5 +25,4 @@ const useModalVisibility = <TProps extends {}>(modalName: string): State<TProps>
   return state
 }
 
-
 export default useModalVisibility

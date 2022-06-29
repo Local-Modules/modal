@@ -1,6 +1,6 @@
 {
   "name": "@locmod/modal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Abstract modal",
   "module": "dist/index.es.js",
   "main": "lib/index.js",

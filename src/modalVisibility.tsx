@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import useModalVisibility from './useModalVisibility'
 import { closeModal } from './manager'
@@ -33,9 +33,9 @@ const checkSameProps = (modalName: string, componentProps = {}, actionProps = {}
   }
 }
 
-const modalVisibility = <Props extends {}>(name: string, ComposedComponent: FunctionComponent) => {
+const modalVisibility = <Props extends {}>(name: string, ComposedComponent: React.FC<React.PropsWithChildren<any>>) => {
 
-  const WrappedComponent: FunctionComponent<Props> = (componentProps) => {
+  const WrappedComponent: React.FC<Props> = (componentProps) => {
     const { isVisible, props: actionProps } = useModalVisibility<Props>(name)
 
     const { onClose: componentOnClose } = componentProps as any
@@ -59,7 +59,7 @@ const modalVisibility = <Props extends {}>(name: string, ComposedComponent: Func
         {...componentProps}
         {...actionProps}
         closeModal={handleCloseModal}
-      /> 
+      />
     ) : null
   }
 
@@ -67,6 +67,5 @@ const modalVisibility = <Props extends {}>(name: string, ComposedComponent: Func
 
   return React.memo(WrappedComponent)
 }
-
 
 export default modalVisibility

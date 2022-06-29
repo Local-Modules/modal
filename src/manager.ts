@@ -65,7 +65,6 @@ const closeAllModals = (): void => {
 
 const getOpenedModals = (): OpenedModals => openedModals
 
-
 export {
   subscribe,
   unsubscribe,

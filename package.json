@@ -1,15 +1,34 @@
 {
   "name": "@locmod/modal",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Abstract modal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Local-Modules/modal.git"
+  },
+  "keywords": [
+    "modal"
+  ],
+  "author": "@locmod",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Local-Modules/modal/issues"
+  },
+  "homepage": "https://github.com/Local-Modules/modal#readme",
   "module": "dist/index.es.js",
   "main": "lib/index.js",
   "types": "./index.d.ts",
   "directories": {
     "lib": "lib"
   },
+  "scripts": {
+    "test": "echo 123",
+    "dev": "rollup -cw",
+    "build": "rimraf ./dist && rimraf ./lib && rollup -c --compact",
+    "prepublish": "npm run build && npm run test"
+  },
   "peerDependencies": {
-    "react": "^17.0.2"
+    "react": ">=17.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.0",
@@ -32,24 +51,5 @@
     "rollup-plugin-uglify": "^6.0.4",
     "ts-jest": "^27.1.3",
     "typescript": "^4.5.5"
-  },
-  "scripts": {
-    "test": "echo 123",
-    "dev": "rollup -cw",
-    "build": "rimraf ./dist && rimraf ./lib && rollup -c --compact",
-    "prepublish": "npm run build && npm run test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Local-Modules/modal.git"
-  },
-  "keywords": [
-    "modal"
-  ],
-  "author": "@locmod",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Local-Modules/modal/issues"
-  },
-  "homepage": "https://github.com/Local-Modules/modal#readme"
+  }
 }

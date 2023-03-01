@@ -1,4 +1,3 @@
-export { default as modalVisibility } from './src/modalVisibility'
-export type { ModalVisibilityProps } from './src/modalVisibility'
-
-export { openModal, closeModal, closeAllModals, getOpenedModals } from './src/manager'
+export { openModal, closeModal, registerModals, type ModalName, type ModalComponentProps } from './src/manager'
+export { default as ModalsRenderer } from './src/ModalsRenderer'
+export { default as standaloneModal } from './src/standaloneModal'

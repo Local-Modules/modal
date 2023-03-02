@@ -112,7 +112,7 @@ declare global {
 }
 ```
 
-To generate properties from the component, use `ExendModalsRegistry` helper. It automatically extracts all properties from the component and removes `ModalComponentProps` from them:
+To generate properties from the component, use `ExtendModalsRegistry` helper. It automatically extracts all properties from the component and removes `ModalComponentProps` from them:
 
 ```typescript
 declare global {
@@ -124,7 +124,7 @@ declare global {
 
 #### Modal Component
 ```tsx
-import { type ModalComponentProps } from '@locmod/modal2'
+import { type ModalComponentProps } from '@locmod/modal'
 import { SomePlainModalMarkUpYouHave } from 'components/ui'
 
 type AlertModalProps = {
@@ -224,7 +224,7 @@ const Content = () => {
 
 #### Modal Component
 ```tsx
-import { type ModalComponentProps } from '@locmod/modal2'
+import { type ModalComponentProps } from '@locmod/modal'
 import { SomePlainModalMarkUpYouHave } from 'components/ui'
 
 

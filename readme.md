@@ -85,7 +85,7 @@ const App = () => {
   // or temporary in useEffect
   useEffect(() => {
     return registerModals(modalRegistry)
-  })
+  }, [])
 
   return (
     <>

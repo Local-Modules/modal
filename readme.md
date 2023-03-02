@@ -7,200 +7,151 @@
 npm install --save @locmod/modal
 ```
 
-### Imports
+## Structure
+Modal system consists of:
 
-```typescript
-import { modalVisibility, openModal, closeModal, closeAllModals, getOpenedModals } from 'modal'
+- manager (controls the state)
+- `ModalsRenderer` (should be in App render, to render global modals registered by `registerModals` method)
+- `standaloneModal` (use for specific modals, e.g. it will be opened in one place after some user actions)
 
-import { PlainModal, Modal, ModalHeadline, ModalButtons } from 'components/feedback'
-import type { ModalProps, ModalHeadlineProps, ModalButtonsProps, ModalButtonProps } from 'components/feedback'
-```
+#### Difference of default/standalone modals
 
-```typescript
-// decorator to manage a modal visibility state
-modalVisibility(name: string, ComposedComponent): React.Component
-```
+- you don't need to register it by `registerModals`
+- you must put this modal in render manually
 
-```typescript
-openCommonModal(props: ModalProps): void
-openModal<TProps extends {}>(name: string, props?: TProps & Partial<ModalProps>): void
-```
+See live examples on codesandbox.io:
+- [Global modal](https://codesandbox.io/s/locmod-modal-2-global-7n8gd6)
+- [Standalone modal](https://codesandbox.io/s/locmod-modal-2-0-standalone-k71knv)
 
-```typescript
-// will close last opened modal if "name" not passed
-closeModal(name?: string): void
-closeAllModals(): void
-```
+## Manager
 
-```typescript
-getOpenedModals(): string[]
-```
+Controls modals system state, provides event listeners and emit events. Controls modals registry.
 
+Only some methods of the manager are public.
 
-### Modal Props
+## How to
 
-```typescript
-import type { SvgName } from 'components/dataDisplay'
-import type { ButtonBaseProps, ButtonContentProps } from 'components/inputs'
+### ModalComponentProps
 
+When you build your modal, even if you don't need business logic props, you have additional props which are provided by ModalRenderer / standaloneModal - use type `ModalComponentProps`:
 
-type ModalButtonProps = Omit<ButtonBaseProps & ButtonContentProps, 'size' | 'color'>
+```tsx
+import { type ModalComponentProps } from '@locmod/modal'
 
-type ModalProps = {
-  children?: React.ReactNode
-  iconName?: SvgName
-  title: string | Intl.Message
-  text: string | Intl.Message
-  content?: React.ReactNode
-  primaryButton?: ModalButtonProps
-  secondaryButton?: ModalButtonProps
-  ordinaryButton?: ModalButtonProps
-  overlayClosable?: boolean
-  htmlRole?: string
-  dataTestId?: string
-  onClose?: () => void
-}
-```
+/*
+*  type ModalComponentProps = {
+*    name: string
+*    closeModal: (withOnClose?: boolean) => void
+*    onClose?: () => void
+*  }
+*/
 
-
-### Usage
-
-```typescript jsx
-import React, { useCallback } from 'react'
-import { CommonModal, openCommonModal, closeModal } from 'modal'
-
-const App = () => {
-  const handleButtonClick = useCallback(() => {
-    openCommonModal({
-      iconName: 'happyBird',
-      title: 'Address validation',
-      text: 'Please verify that address you entered is correct',
-      content: (
-        <span>Additional content</span>
-      ),
-      primaryButton: { 
-        title: 'Use this address', 
-      },
-      secondaryButton: { 
-        title: 'Edit address', 
-        onClick: () => closeModal(), 
-      },
-    })
-  }, [])
-
+const ExampleModal: React.FC<ModalComponentProps> = (props) => {
+  const { closeModal } = props
+  
+  const handleClick = () => {
+    // closeModal has a boolean argument "withOnClose"
+    // if it's true, it will trigger the "onClose" prop, if passed
+    closeModal(true)
+  }
+  
   return (
-    <>
-      <button onClick={handleButtonClick}>Open modal</button>
-      <CommonModal />
-    </>
+    <div>
+      <button onClick={handleClick}>Ok</button>
+    </div>
   )
 }
 ```
 
-#### Custom Modal
+### How to open modals
 
-If you'd like to create a modal with default inner components (Title, Text, Buttons) you can use `Modal`.
+To control modals you have `openModal` and `closeModal` helpers:
 
-```typescript jsx
-import React from 'react'
-import { modalVisibility, openModal } from 'modal'
+```typescript
+import { openModal, closeModal } from '@locmod/modal'
 
-import { Modal } from 'components/feedback'
-import type { ModalProps } from 'components/feedback'
+openModal('ExampleModal') // just open a modal that is registered by registerModals() or rendered by standaloneModal
 
+// it returns a unique closer (is the same as closeModal in Modal component)
+const closeThisExactModal = openModal('ExampleModal', { 
+  // will be triggered by closeThisExactModal(true) or by closeModal(true) inside ExampleModal
+  onClose: () => console.log('onclose triggered'),
+})
 
-export type CustomModalProps = {
-  username: string
-}
-
-const CustomModal: React.FunctionComponent<CustomModalProps & ModalProps> = ({ userName, primaryButton, closeModal }) => (
-  <Modal 
-    title="Address validation"
-    text="Please verify that address you entered is correct"
-    primaryButton={primaryButton}
-    closeModal={closeModal}
-  >
-    <span>Hello {userName}!</span>
-  </Modal>
-)
-
-export const openCustomModal = (props: CustomModalProps) => openModal('customModal', props)
-
-
-export default modalVisibility('customModal', CustomModal)
+// to close every possible common modal
+closeModal('commonModal') // use with careful and only outside the modal itself
 ```
 
-```typescript jsx
-import React, { useCallback } from 'react'
+When you call `openModal`, it generates a unique id and an instance of a modal. Such behaviour helps to
+display multiple modals with the same base component (like `CommonModal`) and handle them separately.
 
-import CustomModal, { openCustomModal } from 'compositions/modals/CustomModal/CustomModal'
+If a modal has some required props, `props` argument in openModal is required too.
+All props will be passed to the modal component.
 
+## Registry
+
+Registry is a simple record of modal components keyed by modal name. Each modal will be rendered only
+when it's opened by manager. If you don't want to load a modal immediately, provide a dynamic component.
+
+```typescript
+const modalRegistry = {
+  commonModal: CommonModal, // component
+  lazyModal: React.lazy(() => import('compositions/modals/LazyModal/LazyModal')),
+  loadableModal: loadable(() => import('compositions/modals/LazyModal/LazyModal')),
+  nextjsDynamicModal: dynamic(() => import('compositions/modals/LazyModal/LazyModal')),
+}
+```
+
+To register global modals (that could be opened from any place of app) in runtime use `registerModals` helper:
+
+```tsx
+import { registerModals, ModalsRenderer } from '@locmod/modal'
+import InfoModal from './InfoModal/InfoModal'
+import ErrorModal from './ErrorModal/ErrorModal'
+
+const modalRegistry = {
+  InfoModal,
+  ErrorModal,
+}
+
+// you can register modals permanently
+registerModals(modalRegistry)
 
 const App = () => {
-  const handleButtonClick = useCallback(() => {
-    openCustomModal({
-      userName: 'John Doe',
-      primaryButton: { title: 'Ok' }, // you can override any property
-    })
+  // or temporary in useEffect
+  useEffect(() => {
+    return registerModals(modalRegistry)
   }, [])
 
   return (
     <>
-      <button onClick={handleButtonClick}>Open modal</button>
-      <CustomModal />
+      <Head />
+      <Content />
+      {/* or via registry prop, which do the same in useEffect */}
+      <ModalsRenderer registry={modalRegistry} />
     </>
   )
 }
 ```
-
-**All properties passed to `openModal(properties)` will be the props of `<CustomModal />`**
-
-If you need more customization use `PlainModal`. This component provides only modal frame with overlay and close button.
-
-```typescript jsx
-import React from 'react'
-import { openModal, modalVisibility } from 'modal'
-
-import { PlainModal, ModalHeadline } from 'components/feedback'
-import type { ModalProps } from 'components/feedback'
+You shouldn't add modals wrapped by `standaloneModal` to registry, use standaloneModal for non-global modals that used in specific place
 
 
-export type CustomModalProps = {
-  username: string
+### Typechecking
+To use registered modals in typechecking you need to extend global interface `ModalsRegistry`:
+
+```typescript
+declare global {
+  // dumb but works
+  interface ModalsRegistry {
+    newModal: { priority?: number }
+  }
 }
-
-const CustomModal: React.FunctionComponent<CustomModalProps & ModalProps> = ({ userName, closeModal }) => (
-  <PlainModal closeModal={closeModal}>
-    <Icon className={s.icon} name="happyBird" />
-    <ModalHeadline title="Custom title" />
-    <span>...smth else</span>
-  </PlainModal>
-)
-
-export const openCustomModal = (props: CustomModalProps) => openModal('customModal', props)
-
-
-export default modalVisibility('customModal', CustomModal)
 ```
 
-```typescript jsx
-import React, { useCallback } from 'react'
+To generate properties from the component, use `ExtendModalsRegistry` helper. It automatically extracts all properties from the component and removes `ModalComponentProps` from them:
 
-import CustomModal, { openCustomModal } from 'compositions/modals/CustomModal/CustomModal'
-
-
-const App = () => {
-  const handleButtonClick = useCallback(() => {
-    openCustomModal({
-      userName: 'John Doe',
-    })
-  }, [])
-
-  return (
-    <>
-      <button onClick={handleButtonClick}>Open modal</button>
-      <CustomModal />
-    </>
-  )
+```typescript
+declare global {
+  interface ModalsRegistry extends ExtendModalsRegistry<{ newModal: typeof NewModal }> {}
 }
 ```

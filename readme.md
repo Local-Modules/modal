@@ -7,16 +7,21 @@
 npm install --save @locmod/modal
 ```
 
-### Structure
+## Structure
 Modal system consists of:
 
 - manager (controls the state)
 - `ModalsRenderer` (should be in App render, to render global modals registered by `registerModals` method)
-- `standaloneModal` (use for modals used in a specific place)
+- `standaloneModal` (use for specific modals, e.g. it will be opened in one place after some user actions)
 
-See examples:
-- [Global modal](#example-of-global-modal)
-- [Standalone modal](#example-of-standalone-modal)
+#### Difference of default/standalone modals
+
+- you don't need to register it by `registerModals`
+- you must put this modal in render manually
+
+See live examples on codesandbox.io:
+- [Global modal](https://codesandbox.io/s/locmod-modal-2-global-7n8gd6)
+- [Standalone modal](https://codesandbox.io/s/locmod-modal-2-0-standalone-k71knv)
 
 ## Manager
 
@@ -148,181 +153,5 @@ To generate properties from the component, use `ExtendModalsRegistry` helper. It
 ```typescript
 declare global {
   interface ModalsRegistry extends ExtendModalsRegistry<{ newModal: typeof NewModal }> {}
-}
-```
-
-## Example of global modal
-
-#### Modal Component
-```tsx
-import { type ModalComponentProps } from '@locmod/modal'
-import { SomePlainModalMarkUpYouHave } from 'components/ui'
-
-type AlertModalProps = {
-  title?: string
-  text?: string
-}
-
-const AlertModal: React.FC<ModalComponentProps & AlertModalProps> = (props) => {
-  const { closeModal, title, text } = props
-  
-  const handleClick = () => {
-    // "true" will trigger onClose handler if it will be passed to props
-    closeModal(true)
-  }
-
-  return (
-    <SomePlainModalMarkUpYouHave closeModal={closeModal}>
-      <h3>{title || 'Ooops'}</h3>
-      <p>{text || 'Something went wrong. Pleasy try again later'}</p>
-      <button onClick={handleClick}>
-        Ok
-      </button>
-    </SomePlainModalMarkUpYouHave>
-  )
-}
-
-declare global {
-  interface ModalsRegistry extends ExtendModalsRegistry<{ AlertModal: typeof AlertModal }> {}
-}
-
-export default AlertModal
-```
-
-#### App
-```tsx
-import { ModalsRenderer } from '@locmod/modal'
-
-import AlertModal from 'components/AlertModal/AlertModal'
-import Content from 'components/Content/Content'
-
-const modalRegistry = {
-  AlertModal,
-}
-
-const App = () => (
-  <>
-    <Content />
-    <ModalsRenderer registry={modalRegistry} />
-  </>
-)
-```
-
-#### Open global modal from Content
-
-```tsx
-import { useEffect } from 'react'
-import { openModal, closeModal } from '@locmod/modal'
-
-
-const Content = () => {
-  useEffect(() => {
-    try {
-      // do something, fetch, anything
-    }
-    catch (error) {
-      // if all props are optional you can use just name
-      // if modal have required props, there will be an TS error
-      openModal('AlertModal')
-    }
-
-    return () => {
-      // will close ALL modals with this name
-      closeModal('AlertModal')
-    }
-  }, [])
-
-  const handleButtonClick = () => {
-    // open modal with props
-    openModal('AlertModal', {
-      title: 'Wow!',
-      text: 'You clicked it',
-      onClose: () => {
-        console.log('Alert closed')
-      },
-    })
-  }
-
-  return (
-    <button type="button" onClick={handleButtonClick}>
-      Click me
-    </button>
-  )
-}
-```
-
-## Example of standalone modal
-
-#### Modal Component
-```tsx
-import { type ModalComponentProps } from '@locmod/modal'
-import { SomePlainModalMarkUpYouHave } from 'components/ui'
-
-
-const SpecificModal: React.FC<ModalComponentProps> = (props) => {
-  const { closeModal } = props
-  
-  const handleClick = () => {
-    // "true" will trigger onClose handler if it will be passed to props
-    closeModal(true)
-  }
-
-  return (
-    <SomePlainModalMarkUpYouHave closeModal={closeModal}>
-      <h3>Success!</h3>
-      <p>Your order has been placed</p>
-      <button onClick={handleClick}>
-        Ok
-      </button>
-    </SomePlainModalMarkUpYouHave>
-  )
-}
-
-// you still should do it to use openModal with this name in TS
-declare global {
-  interface ModalsRegistry extends ExtendModalsRegistry<{ SpecificModal: typeof SpecificModal }> {}
-}
-
-// should be wrapped by standaloneModal
-export default standaloneModal('SpecificModal', SpecificModal)
-```
-
-#### App
-```tsx
-import Content from 'components/Content/Content'
-
-const App = () => (
-  <>
-    <Content />
-  </>
-)
-```
-
-#### Use standalone modal in Content
-
-```tsx
-import { openModal } from '@locmod/modal'
-import SpecificModal from 'components/SpecificModal/SpecificModal'
-
-
-const Content = () => {
-  const handleButtonClick = () => {
-    // open modal with props
-    openModal('SpecificModal', {
-      onClose: () => {
-        console.log('SpecificModal closed')
-      },
-    })
-  }
-
-  return (
-    <>
-      <button type="button" onClick={handleButtonClick}>
-        Click me
-      </button>
-      {/* standalone modal should be rendered in place of usage */}
-      <SpecificModal />
-    </>
-  )
 }
 ```

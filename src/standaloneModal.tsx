@@ -11,11 +11,7 @@ const standaloneModal = (modalName: ModalName, Component: ModalComponent) => {
 
   const Wrapper: React.FC = () => {
     const [ , forceUpdate ] = useState(0)
-    const instanceIdRef = useRef<number>(0)
-
-    if (!instanceIdRef.current) {
-      instanceIdRef.current = lastId++
-    }
+    const instanceIdRef = useRef<number>(lastId++)
 
     useEffect(() => {
       const listener = () => {

@@ -10,9 +10,9 @@ npm install --save @locmod/modal
 ### Structure
 Modal system consists of:
 
-- manager
-- ModalRenderer (for global modals)
-- standaloneModal (use for modals used in specific place)
+- manager (controls the state)
+- `ModalsRenderer` (should be in App render, to render global modals registered by `registerModals` method)
+- `standaloneModal` (use for modals used in a specific place)
 
 See examples:
 - [Global modal](#example-of-global-modal)
@@ -24,6 +24,40 @@ Controls modals system state, provides event listeners and emit events. Controls
 
 Only some methods of the manager are public.
 
+## How to
+
+### ModalComponentProps
+
+When you build your modal, even if you don't need business logic props, you have additional props which are provided by ModalRenderer / standaloneModal - use type `ModalComponentProps`:
+
+```tsx
+import { type ModalComponentProps } from '@locmod/modal'
+
+/*
+*  type ModalComponentProps = {
+*    name: string
+*    closeModal: (withOnClose?: boolean) => void
+*    onClose?: () => void
+*  }
+*/
+
+const ExampleModal: React.FC<ModalComponentProps> = (props) => {
+  const { closeModal } = props
+  
+  const handleClick = () => {
+    // closeModal has a boolean argument "withOnClose"
+    // if it's true, it will trigger the "onClose" prop, if passed
+    closeModal(true)
+  }
+  
+  return (
+    <div>
+      <button onClick={handleClick}>Ok</button>
+    </div>
+  )
+}
+```
+
 ### How to open modals
 
 To control modals you have `openModal` and `closeModal` helpers:
@@ -31,15 +65,12 @@ To control modals you have `openModal` and `closeModal` helpers:
 ```typescript
 import { openModal, closeModal } from '@locmod/modal'
 
-openModal('commonModal') // just open a modal
+openModal('ExampleModal') // just open a modal that is registered by registerModals() or rendered by standaloneModal
 
 // it returns a unique closer (is the same as closeModal in Modal component)
-const closeThisExactModal = openModal('commonModal', { 
-  title: 'Test',
-  primaryButton: {
-    title: 'Close',
-    onClick: () => closeThisExactModal(), // not every commonModal, but this one exactly
-  }
+const closeThisExactModal = openModal('ExampleModal', { 
+  // will be triggered by closeThisExactModal(true) or by closeModal(true) inside ExampleModal
+  onClose: () => console.log('onclose triggered'),
 })
 
 // to close every possible common modal
@@ -62,7 +93,7 @@ const modalRegistry = {
   commonModal: CommonModal, // component
   lazyModal: React.lazy(() => import('compositions/modals/LazyModal/LazyModal')),
   loadableModal: loadable(() => import('compositions/modals/LazyModal/LazyModal')),
-  nextjsDynamic: dynamic(() => import('compositions/modals/LazyModal/LazyModal')),
+  nextjsDynamicModal: dynamic(() => import('compositions/modals/LazyModal/LazyModal')),
 }
 ```
 
@@ -97,7 +128,7 @@ const App = () => {
   )
 }
 ```
-You shouldn't add modals wrapped by `standaloneModal` to registry, use standaloneModal for not-global modals that used in specific place
+You shouldn't add modals wrapped by `standaloneModal` to registry, use standaloneModal for non-global modals that used in specific place
 
 
 ### Typechecking

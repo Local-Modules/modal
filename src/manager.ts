@@ -103,12 +103,23 @@ class ModalManager {
   public unmarkAsStandalone(name: string) {
     this.standaloneModals[name] = (this.standaloneModals[name] || 1) - 1
   }
+
+  public getOpenModalNames() {
+    const openModalNames: ModalName[] = []
+
+    this.getState().forEach((value) => {
+      openModalNames.push(value.name)
+    })
+
+    return openModalNames
+  }
 }
 
 export const manager = new ModalManager()
 
 export const openModal: OpenModal = (name, ...args) => manager.openModal(name, args[0])
 export const closeModal = (name: ModalName) => manager.closeModal(name)
+export const getOpenModalNames = () => manager.getOpenModalNames()
 
 export const registerModals = (registry: Record<string, ModalComponent>) => {
   Object.keys(registry).forEach((key) => {

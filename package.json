@@ -26,7 +26,7 @@
     "test": "echo 123",
     "dev": "rollup -cw",
     "build": "rimraf ./dist && rimraf ./lib && rollup -c --compact",
-    "prepublish": "npm run build && npm run test"
+    "prepublishOnly": "npm run build && npm run test"
   },
   "peerDependencies": {
     "react": ">=17.0.2"

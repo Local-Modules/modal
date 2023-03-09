@@ -1,13 +1,14 @@
 {
   "name": "@locmod/modal",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Abstract modal",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Local-Modules/modal.git"
   },
   "keywords": [
-    "modal"
+    "modal",
+    "react"
   ],
   "author": "@locmod",
   "license": "MIT",
@@ -25,7 +26,7 @@
     "test": "echo 123",
     "dev": "rollup -cw",
     "build": "rimraf ./dist && rimraf ./lib && rollup -c --compact",
-    "prepublish": "npm run build && npm run test"
+    "prepublishOnly": "npm run build && npm run test"
   },
   "peerDependencies": {
     "react": ">=17.0.2"

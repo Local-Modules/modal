@@ -1,6 +1,19 @@
 
 # @locmod/modal
 
+<!-- TOC -->
+* [Installation](#installation)
+* [Structure](#structure)
+  * [Difference of standalone modals](#difference-of-standalone-modals)
+  * [Examples](#examples)
+* [Manager](#manager)
+* [How to](#how-to)
+  * [ModalComponentProps](#modalcomponentprops)
+  * [How to open and close modals](#how-to-open-and-close-modals)
+  * [Registry](#registry)
+  * [Typechecking](#typechecking)
+<!-- TOC -->
+
 ### Installation
 
 ```bash
@@ -11,13 +24,31 @@ npm install --save @locmod/modal
 Modal system consists of:
 
 - manager (controls the state)
-- `ModalsRenderer` (should be in App render, to render global modals registered by `registerModals` method)
-- `standaloneModal` (use for specific modals, e.g. it will be opened in one place after some user actions)
+- and public methods and types:
 
-#### Difference of default/standalone modals
+|                                                            |                                                                                                                                                                                                   |
+|------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| global `type ModalsRegistry`                               | Provides modal props mapping for all other methods: `{ [modalName: string]: {...} }`                                                                                                              |
+| global `type ExtendModalsRegistry`                         | Type helper. Use in modal cmponents to add mapping of modal name & props to ModalsRegistry. See [Typecheking section](#typechecking) for details                                                  |
+| `type ModalName`                                           | Registered modal names `keyof ModalsRegistry`                                                                                                                                                     |
+| `type ModalComponentProps<YourModalProps>`                 | helper type to use for modals, combine your business-logic props with props provided by `ModalRenderer` / `standaloneModal`. See [ModalComponentProps](#modalcomponentprops) section for details. |
+| `type ModalComponent<YourModalProps>`                      | helper type to use for modals, combine your business-logic props with `ModalComponentProps`                                                                                                       |
+| `openModal(name: ModalName)`                               | Opens a modal by name                                                                                                                                                                             |
+| `closeModal(name: ModalName)`                              | Closes **all** modals by name                                                                                                                                                                     |
+| `registerModals(registry: Record<string, ModalComponent>)` | Registers modal to render by `ModalRenderer`. See [Registry](#registry) section for details                                                                                                       |
+| `getOpenModalNames()`                                      | Returns an array of open modal names                                                                                                                                                              |
+| `<ModalsRenderer />`                                       | Handles render of all modals which added by `registerModals`, should be added to App render                                                                                                       |
+| `standaloneModal(string: ModalName, ModalComponent)`       | HOC. It handles render of wrapped modal. Should be added to render manually. Use for specific modals, e.g. a modal requires some non-global Context that isn't accessible from ModalsRenderer     |
 
-- you don't need to register it by `registerModals`
+### Difference of standalone modals
+
+- ModalsRenderer skips (doesn't render) modals which are wrapped by this HOC
+- so you don't need to register it by `registerModals`
 - you must put this modal in render manually
+
+Use for specific modals, e.g. a modal requires some non-global Context that isn't accessible from ModalsRenderer
+
+### Examples
 
 See live examples on codesandbox.io:
 - [Global modal](https://codesandbox.io/s/locmod-modal-2-global-7n8gd6)
@@ -63,7 +94,7 @@ const ExampleModal: React.FC<ModalComponentProps> = (props) => {
 }
 ```
 
-### How to open modals
+### How to open and close modals
 
 To control modals you have `openModal` and `closeModal` helpers:
 
@@ -88,7 +119,7 @@ display multiple modals with the same base component (like `CommonModal`) and ha
 If a modal has some required props, `props` argument in openModal is required too.
 All props will be passed to the modal component.
 
-## Registry
+### Registry
 
 Registry is a simple record of modal components keyed by modal name. Each modal will be rendered only
 when it's opened by manager. If you don't want to load a modal immediately, provide a dynamic component.
@@ -133,7 +164,7 @@ const App = () => {
   )
 }
 ```
-You shouldn't add modals wrapped by `standaloneModal` to registry, use standaloneModal for non-global modals that used in specific place
+You shouldn't add modals wrapped by `standaloneModal` to registry, use standaloneModal for non-global modals that used in specific place, e.g. your modal requires some specific Context
 
 
 ### Typechecking

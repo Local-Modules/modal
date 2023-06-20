@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { manager, type ModalName } from 'src/manager'
+import { manager, type ModalName } from '../manager'
 
 
 export default function useModalOpenState(name: ModalName) {

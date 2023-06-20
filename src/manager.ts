@@ -32,7 +32,7 @@ export type ModalComponentProps<P = {}> = P & { name: string, closeModal: (withO
 
 export type ModalComponent<P = {}> = React.ComponentType<ModalComponentProps<P>>
 
-type Listener = () => void
+type Listener = (name: ModalName) => void
 
 export type ModalName = keyof ModalsRegistry
 
@@ -59,8 +59,8 @@ class ModalManager {
     this.events.unsubscribe('change', listener)
   }
 
-  public emitRender() {
-    this.events.dispatch('change')
+  public emitRender(name: ModalName) {
+    this.events.dispatch('change', name)
   }
 
   public openModal<K extends ModalName = ModalName>(name: K, props?: ModalsRegistry[K]) {
@@ -69,7 +69,7 @@ class ModalManager {
 
     const closeModal = (withOnClose?: boolean) => {
       this.state.delete(id)
-      this.emitRender()
+      this.emitRender(name)
 
       if (withOnClose === true && typeof props?.onClose === 'function') {
         props?.onClose()
@@ -77,7 +77,7 @@ class ModalManager {
     }
 
     this.state.set(id, { name, props, closeModal, isStandalone })
-    this.emitRender()
+    this.emitRender(name)
 
     return closeModal
   }
@@ -89,7 +89,7 @@ class ModalManager {
         this.state.delete(key)
       }
     })
-    this.emitRender()
+    this.emitRender(name)
   }
 
   public getState() {

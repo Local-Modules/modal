@@ -4,7 +4,7 @@ import { manager, ModalComponent, modalsRegistry, registerModals } from './manag
 
 
 type ModalsRendererProps = {
-  registry?: Record<string, ModalComponent>
+  registry?: Record<string, ModalComponent<any>>
 }
 
 const ModalsRenderer: React.FC<ModalsRendererProps> = ({ registry }) => {

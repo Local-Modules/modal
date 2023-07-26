@@ -39,7 +39,7 @@ export type ModalName = keyof ModalsRegistry
 type OpenModalsState<K extends ModalName = ModalName> = Map<number, { name: K, props?: ModalsRegistry[K], closeModal: (withOnClose?: boolean) => void, isStandalone: boolean }>
 
 
-export const modalsRegistry: Record<string, ModalComponent> = {}
+export const modalsRegistry: Record<string, ModalComponent<any>> = {}
 
 class ModalManager {
   private events = new EventAggregator()
@@ -121,7 +121,7 @@ export const openModal: OpenModal = (name, ...args) => manager.openModal(name, a
 export const closeModal = (name: ModalName) => manager.closeModal(name)
 export const getOpenModalNames = () => manager.getOpenModalNames()
 
-export const registerModals = (registry: Record<string, ModalComponent>) => {
+export const registerModals = (registry: Record<string, ModalComponent<any>>) => {
   Object.keys(registry).forEach((key) => {
     modalsRegistry[key] = registry[key]
   })

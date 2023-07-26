@@ -3,7 +3,7 @@ import { type ModalComponent, type ModalName, manager } from './manager'
 
 
 // to render a modal in-place without registration required
-const standaloneModal = (modalName: ModalName, Component: ModalComponent) => {
+const standaloneModal = (modalName: ModalName, Component: ModalComponent<any>) => {
   // ATTN because we can render several instances of standaloneModal,
   //  we should track them and render only in the active one
   let lastId = 1

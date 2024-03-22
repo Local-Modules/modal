@@ -1,5 +1,5 @@
 import builtins from 'builtin-modules/static'
-import typescript from 'rollup-plugin-typescript2'
+import typescript from '@rollup/plugin-typescript'
 import babel from '@rollup/plugin-babel'
 import json from '@rollup/plugin-json'
 
@@ -10,19 +10,13 @@ import pkg from './package.json'
 // const babelRuntimeVersion = pkg.dependencies['@babel/runtime'].replace(/^[^0-9]*/, '')
 
 export default {
-  input: 'index.ts',
-  output: [
-    {
-      file: pkg.main,
-      format: 'cjs',
-      exports: 'named',
-    },
-    {
-      file: pkg.module,
-      format: 'es',
-      exports: 'named',
-    },
-  ],
+  input: 'src/index.ts',
+  output: {
+    dir: 'dist',
+    format: 'es',
+    chunkFileNames: '[name].js',
+    compact: true,
+  },
   external: [
     ...builtins,
     ...Object.keys(pkg.dependencies || {}),
@@ -34,8 +28,7 @@ export default {
       exclude: 'node_modules/**',
     }),
     typescript({
-      rollupCommonJSResolveHack: false,
-      clean: true,
+      tsconfig: './tsconfig.json',
     }),
     // uglify(),
   ],

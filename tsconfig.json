@@ -1,27 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2021",
     "typeRoots": [
       "./src/types",
       "./node_modules/@types"
     ],
     "module": "esnext",
-    "lib": [
-      "es2017",
-      "es7",
-      "es6",
-      "dom"
-    ],
+    "lib": ["es2021", "dom"],
     "declaration": true,
-    "outDir": "lib/esm",
+    "declarationDir": "dist",
     "jsx": "react",
     "esModuleInterop": true,
     "strict": true,
-    "downlevelIteration": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "types": ["node"],
+    "moduleResolution": "Node",
   },
   "include": [
-    "./src"
-  , "index.ts"    ],
+    "./src",
+    "src/index.ts"
+  ],
   "exclude": [
     "node_modules",
     "lib",

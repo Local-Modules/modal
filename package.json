@@ -22,6 +22,9 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "echo 123",
     "dev": "rollup -cw",

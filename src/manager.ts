@@ -1,5 +1,5 @@
 import type React from 'react'
-import EventAggregator from '@locmod/event-aggregator'
+import { events } from '@locmod/event-aggregator'
 
 
 declare global {
@@ -42,25 +42,26 @@ type OpenModalsState<K extends ModalName = ModalName> = Map<number, { name: K, p
 export const modalsRegistry: Record<string, ModalComponent<any>> = {}
 
 class ModalManager {
-  private events = new EventAggregator()
+  private events = events
   private state: OpenModalsState = new Map()
   private standaloneModals: Record<string, number> = {}
   private lastId = 0
+  private eventName = 'locmod-modal-change'
 
   private generateId() {
     return this.lastId++
   }
 
   public subscribe(listener: Listener) {
-    this.events.subscribe('change', listener)
+    this.events.subscribe(this.eventName, listener)
   }
 
   public unsubscribe(listener: Listener) {
-    this.events.unsubscribe('change', listener)
+    this.events.unsubscribe(this.eventName, listener)
   }
 
   public emitRender(name: ModalName) {
-    this.events.dispatch('change', name)
+    this.events.dispatch(this.eventName, name)
   }
 
   public openModal<K extends ModalName = ModalName>(name: K, props?: ModalsRegistry[K]) {
